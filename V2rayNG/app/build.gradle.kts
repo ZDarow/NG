@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
     id("com.jaredsburrows.license")
 }
 
@@ -126,7 +128,10 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
+
+    // Compose compiler configured via Kotlin compose plugin
 
     bundle {
         language {
@@ -166,6 +171,7 @@ dependencies {
     // Data and Storage Libraries
     implementation(libs.mmkv.static)
     implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp)
 
     // Reactive and Utility Libraries
@@ -188,6 +194,25 @@ dependencies {
     // Background Task Libraries
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.multiprocess)
+
+    // DI
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+
+    // Compose (versions via BOM)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    debugImplementation(libs.compose.ui.tooling)
+
+    // Logging
+    implementation(libs.timber)
 
     // Testing Libraries
     testImplementation(libs.junit)

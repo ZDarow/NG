@@ -7,16 +7,18 @@ import androidx.work.WorkManager
 import com.tencent.mmkv.MMKV
 import com.v2ray.ang.AppConfig.ANG_PACKAGE
 import com.v2ray.ang.handler.SettingsManager
+import com.v2ray.ang.di.databaseModule
+import com.v2ray.ang.di.networkModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
+import timber.log.Timber
 
 class AngApplication : Application() {
     companion object {
         lateinit var application: AngApplication
+            private set
     }
 
-    /**
-     * Attaches the base context to the application.
-     * @param base The base context.
-     */
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
         application = this
@@ -26,11 +28,21 @@ class AngApplication : Application() {
         .setDefaultProcessName("${ANG_PACKAGE}:bg")
         .build()
 
-    /**
-     * Initializes the application.
-     */
     override fun onCreate() {
         super.onCreate()
+
+        // Plant Timber for structured logging
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+        // Production: plant CrashReportingTree or Sentry tree
+        // else { Timber.plant(CrashReportingTree()) }
+
+        // Start Koin DI
+        startKoin {
+            androidContext(this@AngApplication)
+            modules(networkModule, databaseModule)
+        }
 
         MMKV.initialize(this)
 

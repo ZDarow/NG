@@ -1,10 +1,14 @@
 package com.v2ray.ang.util
 
-import android.util.Log
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.handler.MmkvManager
+import timber.log.Timber
 import java.util.Locale
 
+/**
+ * Legacy logging utility. Delegates to Timber internally.
+ * New code should use Timber directly: Timber.tag("TAG").d("msg")
+ */
 object LogUtil {
 
     private const val DEFAULT_LEVEL = "warning"
@@ -15,13 +19,13 @@ object LogUtil {
 
     private fun parsePriority(level: String?): Int {
         return when ((level ?: DEFAULT_LEVEL).lowercase(Locale.US)) {
-            "verbose" -> Log.VERBOSE
-            "debug" -> Log.DEBUG
-            "info" -> Log.INFO
-            "warn", "warning" -> Log.WARN
-            "error" -> Log.ERROR
-            "none", "off" -> Int.MAX_VALUE
-            else -> Log.WARN
+            "verbose" -> LogPriority.VERBOSE
+            "debug" -> LogPriority.DEBUG
+            "info" -> LogPriority.INFO
+            "warn", "warning" -> LogPriority.WARN
+            "error" -> LogPriority.ERROR
+            "none", "off" -> LogPriority.NONE
+            else -> LogPriority.WARN
         }
     }
 
@@ -52,27 +56,36 @@ object LogUtil {
         return priority >= minPriority()
     }
 
-    private fun log(priority: Int, tag: String, message: String, throwable: Throwable? = null) {
-        if (!isEnabled(priority)) return
+    private object LogPriority {
+        const val VERBOSE = 0
+        const val DEBUG = 1
+        const val INFO = 2
+        const val WARN = 3
+        const val ERROR = 4
+        const val NONE = 5
+    }
 
-        when {
-            throwable == null -> Log.println(priority, tag, message)
-            priority >= Log.ERROR -> Log.e(tag, message, throwable)
-            priority == Log.WARN -> Log.w(tag, message, throwable)
-            priority == Log.INFO -> Log.i(tag, message, throwable)
-            priority == Log.DEBUG -> Log.d(tag, message, throwable)
-            else -> Log.v(tag, message, throwable)
+    private fun logToTimber(priority: Int, tag: String, message: String, throwable: Throwable? = null) {
+        if (!isEnabled(priority)) return
+        val t = if (tag != AppConfig.TAG) Timber.tag(tag) else Timber
+
+        when (priority) {
+            LogPriority.DEBUG -> if (throwable != null) t.d(throwable, message) else t.d(message)
+            LogPriority.INFO -> if (throwable != null) t.i(throwable, message) else t.i(message)
+            LogPriority.WARN -> if (throwable != null) t.w(throwable, message) else t.w(message)
+            LogPriority.ERROR -> if (throwable != null) t.e(throwable, message) else t.e(message)
+            else -> if (throwable != null) t.v(throwable, message) else t.v(message)
         }
     }
 
-    fun d(tag: String = AppConfig.TAG, message: String) = log(Log.DEBUG, tag, message)
-    fun i(tag: String = AppConfig.TAG, message: String) = log(Log.INFO, tag, message)
-    fun w(tag: String = AppConfig.TAG, message: String) = log(Log.WARN, tag, message)
-    fun e(tag: String = AppConfig.TAG, message: String) = log(Log.ERROR, tag, message)
+    fun d(tag: String = AppConfig.TAG, message: String) = logToTimber(LogPriority.DEBUG, tag, message)
+    fun i(tag: String = AppConfig.TAG, message: String) = logToTimber(LogPriority.INFO, tag, message)
+    fun w(tag: String = AppConfig.TAG, message: String) = logToTimber(LogPriority.WARN, tag, message)
+    fun e(tag: String = AppConfig.TAG, message: String) = logToTimber(LogPriority.ERROR, tag, message)
 
-    fun d(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = log(Log.DEBUG, tag, message, throwable)
-    fun i(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = log(Log.INFO, tag, message, throwable)
-    fun w(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = log(Log.WARN, tag, message, throwable)
-    fun e(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = log(Log.ERROR, tag, message, throwable)
+    fun d(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = logToTimber(LogPriority.DEBUG, tag, message, throwable)
+    fun i(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = logToTimber(LogPriority.INFO, tag, message, throwable)
+    fun w(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = logToTimber(LogPriority.WARN, tag, message, throwable)
+    fun e(tag: String = AppConfig.TAG, message: String, throwable: Throwable) = logToTimber(LogPriority.ERROR, tag, message, throwable)
 }
 
