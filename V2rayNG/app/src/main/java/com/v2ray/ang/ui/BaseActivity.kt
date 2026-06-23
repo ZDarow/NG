@@ -136,6 +136,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * @param showHomeAsUp whether to show the up/home affordance on the toolbar (default true)
      * @param title optional activity title to set on the toolbar
      */
+    @Suppress("InflateParams")
     protected fun setContentViewWithToolbar(layoutResId: Int, showHomeAsUp: Boolean = true, title: CharSequence? = null) {
         val base = LayoutInflater.from(this).inflate(R.layout.activity_base, null)
         val container = base.findViewById<FrameLayout>(R.id.content_container)
@@ -156,6 +157,7 @@ abstract class BaseActivity : AppCompatActivity() {
      * @param showHomeAsUp whether to show the up/home affordance on the toolbar (default true)
      * @param title optional activity title to set on the toolbar
      */
+    @Suppress("InflateParams")
     protected fun setContentViewWithToolbar(childView: View, showHomeAsUp: Boolean = true, title: CharSequence? = null) {
         val base = LayoutInflater.from(this).inflate(R.layout.activity_base, null)
         val container = base.findViewById<FrameLayout>(R.id.content_container)

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.webkit.WebSettings
 import android.webkit.WebView
+import android.webkit.WebResourceRequest
 import android.webkit.WebViewClient
 
 class DialerWebviewService : IDialerService {
@@ -33,18 +34,28 @@ class DialerWebviewService : IDialerService {
         if (webView != null) stop()
         if (dialerAddr.isEmpty()) return
         val dialerUrl = "http://$dialerAddr/"
+        val dialerHost = try {
+            java.net.URI("http://$dialerAddr").host
+        } catch (_: Exception) { null }
 
         webView = WebView(context.applicationContext).apply {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
-                // Allow JS to run even if not triggered by user
-                mediaPlaybackRequiresUserGesture = false
                 // Prevent aggressive caching issues
                 cacheMode = WebSettings.LOAD_DEFAULT
             }
 
             webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): Boolean {
+                    // Restrict navigation to the dialer host only
+                    val host = request?.url?.host
+                    return host != null && host != dialerHost
+                }
+
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
                     view?.onResume()

@@ -125,23 +125,14 @@ object HttpUtil {
                     LogUtil.w(AppConfig.TAG, "Failed to get URL content, code=${response.code}")
                     return null
                 }
-                return response.body?.string()
+                return response.body.string()
             }
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to get URL content", e)
+            return null
         }
-        return null
     }
 
-    /**
-     * Retrieves the content of a URL as a string with a custom User-Agent header.
-     *
-     * @param url The URL to fetch content from.
-     * @param timeout The timeout value in milliseconds.
-     * @param httpPort The HTTP port to use.
-     * @return The content of the URL as a string.
-     * @throws IOException If an I/O error occurs.
-     */
     @Throws(IOException::class)
     fun getUrlContentWithUserAgent(request: UrlContentRequest): String {
         var currentUrl = request.url
@@ -183,7 +174,7 @@ object HttpUtil {
                     }
 
                     response.isSuccessful -> {
-                        return response.body?.string() ?: ""
+                        return response.body.string()
                     }
 
                     else -> {
@@ -279,7 +270,7 @@ object HttpUtil {
                     LogUtil.w(AppConfig.TAG, "Failed to download file, code=${response.code}, url=$url")
                     return false
                 }
-                val body = response.body ?: return false
+                val body = response.body
                 body.byteStream().use { input ->
                     targetFile.outputStream().use { output ->
                         input.copyTo(output)

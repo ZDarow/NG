@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.text.TextUtils
 import com.v2ray.ang.AppConfig
+import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreConfigManager
 import com.v2ray.ang.dto.SubscriptionUpdateResult
@@ -405,7 +406,7 @@ object AngConfigManager {
                     var count = 0
                     val keyToProfile = mutableMapOf<String, ProfileItem>()
                     for (srv in serverList.reversed()) {
-                        val config = CustomFmt.parse(JsonUtil.toJson(srv)) ?: continue
+                        val config = CustomFmt.parse(JsonUtil.toJson(srv))
                         config.subscriptionId = subid
                         config.description = generateDescription(config)
                         val key = MmkvManager.encodeServerConfig("", config)
@@ -425,7 +426,7 @@ object AngConfigManager {
 
             try {
                 // For compatibility
-                val config = CustomFmt.parse(server) ?: return 0
+                val config = CustomFmt.parse(server)
                 config.subscriptionId = subid
                 config.description = generateDescription(config)
                 if (!append) {
@@ -440,7 +441,7 @@ object AngConfigManager {
             return 0
         } else if (server.startsWith("[Interface]") && server.contains("[Peer]")) {
             try {
-                val config = WireguardFmt.parseWireguardConfFile(server) ?: return R.string.toast_incorrect_protocol
+                val config = WireguardFmt.parseWireguardConfFile(server)
                 config.description = generateDescription(config)
                 if (!append) {
                     MmkvManager.removeServerViaSubid(subid)
@@ -548,7 +549,7 @@ object AngConfigManager {
                     return SubscriptionUpdateResult(failureCount = 1)
                 }
             }
-            LogUtil.i(AppConfig.TAG, url)
+            if (BuildConfig.DEBUG) LogUtil.d(AppConfig.TAG, "Updating subscription: ${it.subscription.remarks}")
             val userAgent = it.subscription.userAgent
             val proxyUsername = SettingsManager.getSocksUsername()
             val proxyPassword = SettingsManager.getSocksPassword()

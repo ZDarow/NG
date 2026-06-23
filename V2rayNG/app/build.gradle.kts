@@ -14,7 +14,6 @@ android {
         targetSdk = 37
         versionCode = 735
         versionName = "2.2.5"
-        multiDexEnabled = true
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
         splits {
@@ -40,7 +39,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -128,6 +128,12 @@ android {
         buildConfig = true
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     packaging {
         jniLibs {
             useLegacyPackaging = true
@@ -182,9 +188,6 @@ dependencies {
     // Background Task Libraries
     implementation(libs.work.runtime.ktx)
     implementation(libs.work.multiprocess)
-
-    // Multidex Support
-    implementation(libs.multidex)
 
     // Testing Libraries
     testImplementation(libs.junit)

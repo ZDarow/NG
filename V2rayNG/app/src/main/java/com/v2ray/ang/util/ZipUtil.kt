@@ -87,7 +87,12 @@ object ZipUtil {
             ZipFile(zipFile).use { zip ->
                 zip.entries().asSequence().forEach { entry ->
                     zip.getInputStream(entry).use { input ->
-                        val filePath = destDirectory + File.separator + entry.name
+                        val destDir = File(destDirectory).normalize()
+                        val targetFile = File(destDir, entry.name).normalize()
+                        if (!targetFile.startsWith(destDir)) {
+                            throw IOException("Zip slip attack detected: ${entry.name}")
+                        }
+                        val filePath = targetFile.path
                         if (!entry.isDirectory) {
                             extractFile(input, filePath)
                         } else {

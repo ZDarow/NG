@@ -87,10 +87,10 @@ class ServerCustomConfigActivity : BaseActivity() {
 
         val config = MmkvManager.decodeServerConfig(editGuid) ?: ProfileItem.create(EConfigType.CUSTOM)
         binding.etRemarks.text.let {
-            config.remarks = if (it.isNullOrEmpty()) profileItem?.remarks.orEmpty() else it.toString()
+            config.remarks = if (it.isNullOrEmpty()) profileItem.remarks else it.toString()
         }
-        config.server = profileItem?.server
-        config.serverPort = profileItem?.serverPort
+        config.server = profileItem.server
+        config.serverPort = profileItem.serverPort
         config.description = AngConfigManager.generateDescription(config)
 
         MmkvManager.encodeServerConfig(editGuid, config)
